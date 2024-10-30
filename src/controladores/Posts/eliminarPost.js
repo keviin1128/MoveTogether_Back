@@ -20,37 +20,37 @@ const eliminarPublicacion = async (req, res) => {
       return res.status(404).json({ message: "Publicación no encontrada." });
     }
 
-    // Si se encuentra, la eliminamos
+    // Eliminar la publicación de la colección de publicaciones
     const publicacionEliminada = await Post.findByIdAndDelete(post_id);
     if (!publicacionEliminada) {
       console.log(`Error al eliminar la publicación con ID ${post_id}.`);
       return res
-        .status(404)
+        .status(500)
         .json({ message: "Error al eliminar la publicación." });
     }
 
-    // Elimina la referencia de la publicación en el modelo de Usuario
+    // Eliminar la referencia de la publicación en el modelo de Usuario
     const result = await Usuario.updateMany(
       { publicaciones: post_id }, // Filtra los usuarios que tienen la publicación
-      { $pull: { publicaciones: post_id } } // Elimina la publicación del array
+      { $pull: { publicaciones: post_id } }, // Elimina la publicación del array
+      { multi: true } // Asegura que todos los documentos coincidentes se actualicen
     );
 
-    if (result.nModified === 0) {
+    // Si no se encontró ninguna referencia
+    if (result.modifiedCount === 0) {
       console.log(
         `No se encontró la referencia de la publicación en ningún usuario.`
       );
-      return res
-        .status(404)
-        .json({
-          message:
-            "Referencia de la publicación no encontrada en ningún usuario.",
-        });
+      return res.status(200).json({
+        message:
+          "Publicación eliminada. No se encontró referencia en usuarios.",
+      });
     }
 
-    console.log(`Publicación y referencia eliminadas con éxito.`);
+    console.log(`Publicación y referencias eliminadas con éxito.`);
     return res
       .status(200)
-      .json({ message: "Publicación y referencia eliminadas con éxito." });
+      .json({ message: "Publicación y referencias eliminadas con éxito." });
   } catch (error) {
     console.error("Error al eliminar la publicación:", error);
     return res.status(500).json({ message: "Error del servidor." });

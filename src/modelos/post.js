@@ -4,6 +4,10 @@ const Schema = mongoose.Schema;
 // Definir el esquema del Post
 const PostSchema = new Schema(
   {
+    title: {
+      type: String,
+      required: true,
+    },
     content: {
       type: String,
       required: true,
