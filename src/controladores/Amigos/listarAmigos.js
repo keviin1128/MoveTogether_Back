@@ -13,7 +13,7 @@ const listarAmigosPorEmail = async (req, res) => {
 
     // Buscar el usuario por correo electrónico e incluir detalles de amigos
     const usuario = await Usuario.findOne({ email })
-      .populate("friends", "fullname username email avatar") // Incluir detalles de amigos
+      .populate("friends", "fullname email avatar isLoggedIn") // Incluir detalles de amigos
       .exec();
 
     if (!usuario) {

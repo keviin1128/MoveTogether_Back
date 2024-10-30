@@ -5,8 +5,10 @@ const express = require("express"); // Importar Express
 const mongoose = require("mongoose"); // Importar Mongoose
 const connectDB = require("./config/db.config.js"); // Importar función de conexión a la BD
 const cors = require("cors"); // Importar CORS
+const cloudinary = require("./config/cloudinary.js"); // Importar configuración de Cloudinary
 
 const app = express();
+const server = require("http").createServer(app);
 
 const PORT = process.env.PORT || 3000;
 
@@ -22,6 +24,9 @@ const fotoPerfil = require("./src/rutas/Usuarios/fotoPerfilRuta.js");
 const agregarAmigo = require("./src/rutas/Amigos/agregarAmigoRuta.js");
 const eliminarAmigo = require("./src/rutas/Amigos/eliminarAmigoRuta.js");
 const listarAmigos = require("./src/rutas/Amigos/listarAmigosRuta.js");
+const uploadRuta = require("./src/rutas/Imagenes/uploadRuta.js");
+const logout = require('./src/rutas/Registro/logoutRuta.js');
+const proteccion = require('./src/rutas/Registro/protecRutas');
 
 //posts
 const crearPublicacion = require("./src/rutas/Posts/crearPublicacionRuta.js");
@@ -30,10 +35,14 @@ const feed = require("./src/rutas/Posts/feedRuta.js");
 const eliminarPost = require("./src/rutas/Posts/eliminarPostRuta.js");
 const actualizarPost = require("./src/rutas/Posts/actualizarPostRuta.js");
 
+//mensajes
+//const mensaje = require("./src/rutas/Mensajes/enviarMensajesRuta.js");
+// const conversacion = require("./src/rutas/Mensajes/conversacionruta.js");
+// const visto = require("./src/rutas/Mensajes/vistoRuta.js");
+
 // Conexión a la base de datos
 connectDB();
 
-// Configuración de CORS
 // Configuración de CORS
 const allowedOrigins = [
   "http://localhost:5173", // Origen local para desarrollo
@@ -43,7 +52,6 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Permitir solicitudes sin origen (como las de herramientas de desarrollo)
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'El CORS policy no permite el acceso desde este origen.';
@@ -59,6 +67,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
 // Importar rutas
 
 app.get("/", (req, res) => {
@@ -68,6 +77,8 @@ app.get("/", (req, res) => {
 app.use("/api", crearUsuario);
 app.use("/api", verificarCodigo);
 app.use("/api", login);
+app.use("/api", logout);
+app.use("/api", proteccion);
 app.use("/api", cambiarContrasenia);
 app.use("/api", buscarPorNombre);
 app.use("/api", buscarPerfil);
@@ -81,7 +92,8 @@ app.use("/api", PublicacionesUsuarios);
 app.use("/api", feed);
 app.use("/api", eliminarPost);
 app.use("/api", actualizarPost);
-
+//app.use("/api", mensaje);
+app.use("/api", uploadRuta);
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {

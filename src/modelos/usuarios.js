@@ -63,7 +63,7 @@ const UsuarioSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
-      default: "default-avatar.png",
+      default: "https://res.cloudinary.com/dkzosj1gi/image/upload/v1729719886/i16jiqseqgag9xypiabb.jpg",
     },
     sports: {
       type: [String],
@@ -78,6 +78,10 @@ const UsuarioSchema = new mongoose.Schema(
     ubi: {
       country: { type: String },
       city: { type: String },
+    },
+    isLoggedIn: {
+      type: Boolean,
+      default: false, // Por defecto, el usuario no está logueado
     }
   },
   {

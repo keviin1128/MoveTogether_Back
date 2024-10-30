@@ -4,9 +4,6 @@ const jwt = require("jsonwebtoken");
 
 const loginController = async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required" });
-  }
 
   if (!email || !password) {
     return res
@@ -32,10 +29,15 @@ const loginController = async (req, res) => {
       });
     }
 
+    // Marcar como logged in
+    usuario.isLoggedIn = true;
+    await usuario.save();
+
     // Generar el token JWT
     const payload = {
       id: usuario._id,
       name: usuario.fullname,
+      email: usuario.email,
       phoneNumber: usuario.phoneNumber,
       avatar: usuario.avatar,
     };
@@ -43,15 +45,13 @@ const loginController = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
 
+    console.log("Inicio de sesión exitoso");
     console.log("Token generado:", token);
-
+    
     return res.json({
       mensaje: "Inicio de sesión exitoso",
       token: token,
     });
-
-    // Responde con éxito y envía el token
-    res.status(200).json({ message: "Inicio de sesión exitoso", token });
   } catch (error) {
     return res.status(500).json({ mensaje: "Error del servidor", error });
   }
